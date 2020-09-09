@@ -16,6 +16,7 @@ const TRANSACTIONS_COLLECTION = 'transactions';
 const { DB_CONNECTION } = process.env;
 
 console.log('Iniciando conexão ao MongoDB...');
+
 mongoose.connect(
   DB_CONNECTION,
   {
