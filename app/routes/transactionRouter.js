@@ -1,5 +1,5 @@
 const express = require('express');
-
+const TransactionModel = require('../models/TransactionModel.js');
 const transactionRouter = express.Router();
 
 transactionRouter.get('/', async (_, res) => {
@@ -9,7 +9,16 @@ transactionRouter.get('/', async (_, res) => {
   } catch (err) {
     console.log(err.message)
   }
-}
-)
+});
+
+transactionRouter.get('/:period', async (req, res) => {
+  try {
+    const transactions = await TransactionModel.find({ yearMonth: req.params.period })
+    res.send(transactions);
+
+  } catch{
+
+  }
+})
 
 module.exports = transactionRouter;
