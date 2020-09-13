@@ -1,22 +1,22 @@
 const express = require('express');
-const TransactionModel = require('../models/TransactionModel.js');
+
 const transactionRouter = express.Router();
 // dessa forma não importa o que transactionService usa no db,
 //aqui estão só as rotas
 const service = require('../services/transactionService')
 
-transactionRouter.get('/', async (req, res) => {
-  const { query } = req;
+transactionRouter.get('/:period', async (req, res) => {
+  const { params } = req;
   try {
-    if (!query.period) {
+    if (!params) {
       res.status(500).send({ error: 'É necessário informar o parâmetro \"period"\, cujo o valor deve estar no formato yyyy-mm' });
     }
 
-    const { period } = query;
+    const { period } = params;
     //aqui seria bom um data helpers para validar
     const filteredTransactions = await service.getTransactionsFrom(period);
     res.send({
-      length: filteredTransactions,
+      length: filteredTransactions.length,
       transactions: filteredTransactions
     })
 
@@ -25,26 +25,16 @@ transactionRouter.get('/', async (req, res) => {
   }
 });
 
+//isso aqui era mais um teste.
+// transactionRouter.get('/all', async (req, res) => {
+//   try {
+//     const transactions = await TransactionModel.find({})
+//     res.send(transactions);
 
-transactionRouter.get('/all', async (req, res) => {
-  try {
-    const transactions = await TransactionModel.find({})
-    res.send(transactions);
-
-  } catch (err) {
-    res.status(500).send(err);
-  }
-})
-
-transactionRouter.get('/:period', async (req, res) => {
-  try {
-    const transactions = await TransactionModel.find({ yearMonth: req.params.period })
-    res.send(transactions);
-
-  } catch (err) {
-    res.status(500).send(err);
-  }
-})
+//   } catch (err) {
+//     res.status(500).send(err);
+//   }
+// })
 
 transactionRouter.post('/', async (req, res) => {
   const { body } = req;
@@ -59,12 +49,12 @@ transactionRouter.post('/', async (req, res) => {
       year,
       month,
       day,
-      yearMonth: `${year}${month}`,
-      yearMonthDay: `${year}${month}${day}`,
+      yearMonth: `${year}-${month}`,
+      yearMonthDay: `${year}-${month}-${day}`,
       type
     })
 
-    res.send({ status: ok, transaction: newTransaction });
+    res.send({ status: 'ok', transaction: newTransaction, new: true });
   }
   catch (err) {
     res.status(500).send(err.message);
@@ -89,7 +79,7 @@ transactionRouter.put('/:id', async (req, res) => {
       yearMonthDay: `${year}${month}${day}`,
       type
     })
-
+    res.send({ status: 'ok', transaction: newTransaction, new: true })
   }
   catch (err) {
     res.status(500).send(err.message);
@@ -98,7 +88,7 @@ transactionRouter.put('/:id', async (req, res) => {
 
 
 transactionRouter.delete('/:id', async (req, res) => {
-  const { params } = request;
+  const { params } = req;
   try {
     validateParams(params);
     const { id } = params;

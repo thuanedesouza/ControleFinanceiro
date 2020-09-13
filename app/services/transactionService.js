@@ -1,7 +1,6 @@
 //Essa camada é um design pattern que ajuda a abstrair suas regras de negócio ( banco de dados :D ), 
 //deixando sua controller mais limpa e com a responsabilidade única.
 
-
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
@@ -17,6 +16,7 @@ function extractTransactionModelfrom(mongoDBTransaction) {
   const {
     _id,
     description,
+    value,
     category,
     year,
     month,
