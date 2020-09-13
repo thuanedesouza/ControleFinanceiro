@@ -11,6 +11,16 @@ transactionRouter.get('/', async (_, res) => {
   }
 });
 
+transactionRouter.get('/all', async (req, res) => {
+  try {
+    const transactions = await TransactionModel.find({})
+    res.send(transactions);
+
+  } catch (err) {
+    res.status(500).send(err);
+  }
+})
+
 transactionRouter.get('/:period', async (req, res) => {
   try {
     const transactions = await TransactionModel.find({ yearMonth: req.params.period })
