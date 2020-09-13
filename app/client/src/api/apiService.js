@@ -64,7 +64,7 @@ function _prepareTransactions(transaction) {
 }
 
 async function getTransactionsFrom(period) {
-  console.log(period);
+
   //const { id: yearMonth } = period;
 
   const { data } = await api.get(`${RESOURCE}/${period}`);
