@@ -8,10 +8,12 @@ export default function App() {
 
   useEffect(() => {
     const getTransactions = async () => {
-      const { data } = await api.getTransactionsFrom('2019-01')
-      console.log(data.transactions);
+      const a = '123'
+      const b = '456'
+      console.log(`${a}testehtt${b}`)
+      const data = await api.getTransactionsFrom('2019-01')
       setTimeout(() => {
-        setFilteredTransactions(data.transactions)
+        setFilteredTransactions(data)
       }, 2000);
     };
     getTransactions();

@@ -1,11 +1,12 @@
-//funções gerais com objetivo de preparar os dados que estou recebendo
+//funções gerais com objetivo de preparar os dados para ir pra view
 // e fazer interface com o banco de dados
 
 const axios = require('axios');
 //isso aqui da problema pra subir no heroku:
-//const API_URL = `http://localhost:3001/api/transactions`
+const api = axios.create({ baseURL: 'http://localhost:3001/api' });
 // lá nao tem localhost 
-const api = axios.create({ baseURL: 'api' });
+//tentar:
+//const api = axios.create({ baseURL: 'api' });
 const RESOURCE = '/transactions';
 const CURRENT_YEAR = new Date().getFullYear();
 const GLOBAL_YEARS = [CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1];
@@ -56,16 +57,17 @@ function _prepareTransactions(transaction) {
     month,
     descriptionLowerCase: description.toLowerCase(),
     categoryLowerCase: category.toLowerCase(),
-    monthDescription: MONTH_DESCRIPTIONS.toLowerCase(),
+    monthDescription: MONTH_DESCRIPTIONS[month],
     ...others
   }
 
 }
 
 async function getTransactionsFrom(period) {
-  const { id: yearMonth } = period;
-  const { data } = await api.get(`${RESOURCE}/${yearMonth}`);
+  console.log(period);
+  //const { id: yearMonth } = period;
 
+  const { data } = await api.get(`${RESOURCE}/${period}`);
   const frontEndTransactions = data.transactions.map((transaction) => {
     return _prepareTransactions(transaction);
   });
@@ -73,7 +75,6 @@ async function getTransactionsFrom(period) {
   return frontEndTransactions.sort((a, b) => {
     return a.yearMonthDay.localeCompare(b.yearMonthDay)
   });
-
 }
 
 async function getAllPeriods() {
@@ -104,7 +105,6 @@ async function getCompleteTransaction(transaction) {
   return completeTransaction;
 }
 
-
 async function updateTransaction(transaction) {
   const { id } = transaction;
   const completeTransaction = getCompleteTransaction(transaction);
@@ -118,7 +118,6 @@ async function updateTransaction(transaction) {
 async function postTransaction(transaction) {
   const completeTransaction = getCompleteTransaction(transaction);
   const { data } = await api.post(RESOURCE, completeTransaction);
-
   const newTransaction = _prepareTransactions(data.transaction);
   return newTransaction;
 }
