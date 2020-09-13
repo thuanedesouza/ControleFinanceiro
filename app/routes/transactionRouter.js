@@ -1,15 +1,30 @@
 const express = require('express');
 const TransactionModel = require('../models/TransactionModel.js');
 const transactionRouter = express.Router();
+// dessa forma não importa o que transactionService usa no db,
+//aqui estão só as rotas
+const service = require('../services/transactionService')
 
-
-transactionRouter.get('/', async (_, res) => {
+transactionRouter.get('/', async (req, res) => {
+  const { query } = req;
   try {
-    res.status(500).send({ error: 'É necessário informar o parâmetro \"period"\, cujo o valor deve estar no formato yyyy-mm' });
+    if (!query.period) {
+      res.status(500).send({ error: 'É necessário informar o parâmetro \"period"\, cujo o valor deve estar no formato yyyy-mm' });
+    }
+
+    const { period } = query;
+    //aqui seria bom um data helpers para validar
+    const filteredTransactions = await service.getTransactionsFrom(period);
+    res.send({
+      length: filteredTransactions,
+      transactions: filteredTransactions
+    })
+
   } catch (err) {
-    res.status(001).send(err);
+    res.status(400).send(err.message);
   }
 });
+
 
 transactionRouter.get('/all', async (req, res) => {
   try {
@@ -32,11 +47,49 @@ transactionRouter.get('/:period', async (req, res) => {
 })
 
 transactionRouter.post('/', async (req, res) => {
+  const { body } = req;
+
   try {
-    const id = req.params.id;
-    const transaction = new TransactionModel(req.body)
-    await transaction.save();
-    res.send(transaction);
+    const { description, value, category, year, month, day, type } = body
+
+    const newTransaction = await service.postTransaction({
+      description,
+      value,
+      category,
+      year,
+      month,
+      day,
+      yearMonth: `${year}${month}`,
+      yearMonthDay: `${year}${month}${day}`,
+      type
+    })
+
+    res.send({ status: ok, transaction: newTransaction });
+  }
+  catch (err) {
+    res.status(500).send(err.message);
+  }
+})
+
+transactionRouter.put('/:id', async (req, res) => {
+  const { body, params } = req;
+  try {
+    validateParams(params);
+    const { description, value, category, year, month, day, type } = body;
+    const { id } = params;
+
+    const newTransaction = await service.updateTransaction(id, {
+      description,
+      value,
+      category,
+      year,
+      month,
+      day,
+      yearMonth: `${year}${month}`,
+      yearMonthDay: `${year}${month}${day}`,
+      type
+    })
+
   }
   catch (err) {
     res.status(500).send(err.message);
@@ -44,32 +97,24 @@ transactionRouter.post('/', async (req, res) => {
 })
 
 
-
-transactionRouter.patch('/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    const transaction = await TransactionModel.findByIdAndUpdate({ _id: id }, req.body, { new: true });
-    res.send(transaction);
-  }
-  catch (err) {
-    res.status(500).send(err);
-  }
-})
-
 transactionRouter.delete('/:id', async (req, res) => {
+  const { params } = request;
   try {
-    const id = req.params.id;
-    const transaction = await TransactionModel.findByIdAndDelete({ _id: id });
-    if (!transaction) {
-      res.status(404).send('Documento nao encontrado na selecao');
-    }
-    else {
-      res.status(200).send();
-    }
+    validateParams(params);
+    const { id } = params;
+    await service.deleteTransaction(id);
+    res.send({
+      status: 'ok',
+      message: `Lançamento com id:${id} excluido com sucesso `
+    });
   }
   catch (err) {
-    res.status(500).send(err);
+    res.status(500).send(err.message);
   }
 })
-
+async function validateParams(params) {
+  if (!params.id) {
+    throw new Error('É necessário informar o id do lançamento');
+  }
+}
 module.exports = transactionRouter;

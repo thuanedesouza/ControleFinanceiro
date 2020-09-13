@@ -10,7 +10,6 @@ const ObjectId = mongoose.Types.ObjectId;
 // o servidor é Linux, isso faz diferença. Gastei umas boas horas tentando
 // descobrir esse erro :-/
 const TransactionModel = require('../models/TransactionModel');
-const { deleteTransaction } = require('../client/src/apiService');
 
 
 function extractTransactionModelfrom(mongoDBTransaction) {
