@@ -21,6 +21,20 @@ transactionRouter.get('/:period', async (req, res) => {
   }
 })
 
+transactionRouter.post('/', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const transaction = new TransactionModel(req.body)
+    await transaction.save();
+    res.send(transaction);
+  }
+  catch (err) {
+    res.status(500).send(err.message);
+  }
+})
+
+
+
 transactionRouter.patch('/:id', async (req, res) => {
   try {
     const id = req.params.id;

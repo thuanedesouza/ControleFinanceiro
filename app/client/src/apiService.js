@@ -2,7 +2,7 @@ const axios = require('axios');
 
 const API_URL = `http://localhost:3001/api/transactions`
 
-async function getAllTransacitons(yearMonth) {
+async function getAllTransactions(yearMonth) {
   //pegando resultado da promisse que vem da api
   const res = await axios.get(`${API_URL}/${yearMonth}`);
   const transactions = JSON.parse(await res.data.transactions);
@@ -27,4 +27,4 @@ async function deleteTransaction(transaction) {
   return response.data;
 }
 
-export { getAllTransacitons, updateTransaction, deleteTransaction }
+export { getAllTransactions, updateTransaction, deleteTransaction }

@@ -4,14 +4,14 @@ import Spinner from './components/Spinner';
 
 
 export default function App() {
-  const [allTransactions, setAllTransactions] = useState([]);
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
 
   useEffect(() => {
     const getTransactions = async () => {
-      const transactions = await api.getAllTransacitons(`2019-10`);
+      const transactions = await api.getAllTransactions(`2019-10`);
 
       setTimeout(() => {
-        setAllTransactions(transactions)
+        setFilteredTransactions(transactions)
       }, 2000);
     };
     getTransactions();
@@ -20,7 +20,7 @@ export default function App() {
 
   return (<div>
     <h1>Desafio Final do Bootcamp Full Stack</h1>
-    {allTransactions.length === 0 && < Spinner />}
+    {filteredTransactions.length === 0 && < Spinner />}
   </div>
 
   );
