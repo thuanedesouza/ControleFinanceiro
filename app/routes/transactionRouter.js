@@ -1,50 +1,147 @@
 const express = require('express');
-const TransactionModel = require('../models/TransactionModel.js');
 const transactionRouter = express.Router();
+// dessa forma não importa o que transactionService usa no db,
+//aqui estão só as rotas
+const service = require('../services/transactionService')
+const dateHelper = require('../helpers/dateHelper')
 
-transactionRouter.get('/', async (_, res) => {
+
+
+
+transactionRouter.get('/:period', async (req, res) => {
+  const { params } = req;
   try {
-    res.status(500).send({ error: 'É necessário informar o parâmetro \"period"\, cujo o valor deve estar no formato yyyy-mm' });
+    if (!params) {
+      res.status(500).send({ error: 'É necessário informar o parâmetro \"period"\, cujo o valor deve estar no formato yyyy-mm' });
+    }
+
+    const { period } = params;
+    dateHelper.periodValidation(period);
+
+    const filteredTransactions = await service.getTransactionsFrom(period);
+    res.send({
+      length: filteredTransactions.length,
+      transactions: filteredTransactions
+    })
+
   } catch (err) {
-    res.status(001).send(err);
+    res.status(400).send(err.message);
   }
 });
 
-transactionRouter.get('/:period', async (req, res) => {
-  try {
-    const transactions = await TransactionModel.find({ yearMonth: req.params.period })
-    res.send(transactions);
 
-  } catch (err) {
-    res.status(500).send(err);
-  }
-})
+transactionRouter.post('/', async (req, res) => {
+  const { body } = req;
 
-transactionRouter.patch('/:id', async (req, res) => {
   try {
-    const id = req.params.id;
-    const transaction = await TransactionModel.findByIdAndUpdate({ _id: id }, req.body, { new: true });
-    res.send(transaction);
+    await validateTransactionData(body);
+    const { description, value, category, year, month, day, type } = body
+    const period = dateHelper.createPeriodFrom(year, month);
+
+    const newTransaction = await service.postTransaction({
+      description,
+      value,
+      category,
+      year,
+      month,
+      day,
+      yearMonth: period,
+      yearMonthDay: dateHelper.createDateFrom(year, month, day),
+      type
+    })
+
+    res.send({ status: 'ok', transaction: newTransaction, new: true });
   }
   catch (err) {
-    res.status(500).send(err);
+    res.status(500).send(err.message);
   }
 })
+
+transactionRouter.put('/:id', async (req, res) => {
+  const { body, params } = req;
+  try {
+    validateTransactionId(params);
+    validateTransactionData(body);
+
+    const { description, value, category, year, month, day, type } = body;
+    const { id } = params;
+    const period = dateHelper.createPeriodFrom(year, month)
+    const newTransaction = await service.updateTransaction(id, {
+      description,
+      value,
+      category,
+      year,
+      month,
+      day,
+      yearMonth: period,
+      yearMonthDay: dateHelper.createDateFrom(year, month, day),
+      type
+    })
+    res.send({ status: 'ok', transaction: newTransaction, new: true })
+  }
+  catch (err) {
+    res.status(500).send(err.message);
+  }
+})
+
 
 transactionRouter.delete('/:id', async (req, res) => {
+  const { params } = req;
   try {
-    const id = req.params.id;
-    const transaction = await TransactionModel.findByIdAndDelete({ _id: id });
-    if (!transaction) {
-      res.status(404).send('Documento nao encontrado na selecao');
-    }
-    else {
-      res.status(200).send();
-    }
+    validateTransactionId(params);
+    const { id } = params;
+    await service.deleteTransaction(id);
+    res.send({
+      status: 'ok',
+      message: `Lançamento com id:${id} excluido com sucesso `
+    });
   }
   catch (err) {
-    res.status(500).send(err);
+    res.status(500).send(err.message);
   }
 })
+
+
+async function validateTransactionId(params) {
+  if (!params.id) {
+    throw new Error('É necessário informar o id do lançamento');
+  }
+}
+
+async function validateTransactionData(body) {
+  const { description, value, category, year, month, day } = body;
+
+  if (!description || description.trim() === '') {
+    throw new Error('A descrição é obrigatória');
+  }
+
+  if (!value) {
+    throw new Error('O valor é obrigatório');
+  }
+
+  if (!category || category.trim() === '') {
+    throw new Error('A categoria é obrigatória');
+  }
+
+  if (!year || year.toString() === '') {
+    throw new Error('O ano é obrigatório');
+  }
+
+  if (!month || month.toString() === '') {
+    throw new Error('O mês é obrigatório');
+  }
+
+  if (!type || type.toString() === '') {
+    throw new Error('O tipo de lançamento é obrigatório');
+  }
+
+  if (type.trim() !== '+' && type.trim() !== '-') {
+    throw new Error(
+      `Tipo de de lançamento (${type}) - A propriedade type, despesa ou receita, deve ter o valor '+' ou '-' `
+    );
+  }
+
+}
+
 
 module.exports = transactionRouter;
