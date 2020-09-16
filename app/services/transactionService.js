@@ -11,6 +11,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const TransactionModel = require('../models/TransactionModel');
 
 
+
 function extractTransactionModelfrom(mongoDBTransaction) {
   //extraindo do modelo
   const {
@@ -65,6 +66,17 @@ async function deleteTransaction(_id) {
   await TransactionModel.deleteOne({ _id: ObjectId(_id) });
   return true;
 }
+
+// async function getTotalSpendings(period){
+//    const totalSpendings = await TransactionModel.aggregate(
+//      [{$group: {_id: "$yearMonth",total: {$sum: 1,},
+//      despesas: {$sum: {$cond: {if: {$eq: ["$type", "+"],},
+//      then: {$sum: "$value",},else: 0,},},},
+//      receitas: {$sum: {$cond: {if: {$eq: ["$type", "-"],},
+//      then: {$sum: "$value",},else: 0,},},},},},
+//      {$sort: {_id: 1,},},]);
+
+// }
 
 module.exports = {
   getTransactionsFrom,

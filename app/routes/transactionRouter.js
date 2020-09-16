@@ -5,9 +5,6 @@ const transactionRouter = express.Router();
 const service = require('../services/transactionService')
 const dateHelper = require('../helpers/dateHelper')
 
-
-
-
 transactionRouter.get('/:period', async (req, res) => {
   const { params } = req;
   try {
