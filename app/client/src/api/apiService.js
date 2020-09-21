@@ -36,7 +36,7 @@ function _processPeriods() {
   let index = 0;
   GLOBAL_YEARS.forEach((year) => {
     GLOBAL_MONTHS.forEach((month) => {
-      const id = `${year} - ${month.toString().padEnd(2, '0')}`;
+      const id = `${year}-${month.toString().padStart(2, '0')}`;
       const monthDescription = `${MONTH_DESCRIPTIONS[month]}/${year}`;
       allPeriods.push({ id, description: monthDescription, index: index++ })
     })
@@ -66,7 +66,7 @@ function _prepareTransactions(transaction) {
 async function getTransactionsFrom(period) {
 
   //const { id: yearMonth } = period;
-
+console.log(`${RESOURCE}/${period}`)
   const { data } = await api.get(`${RESOURCE}/${period}`);
   const frontEndTransactions = data.transactions.map((transaction) => {
     return _prepareTransactions(transaction);

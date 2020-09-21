@@ -3,73 +3,105 @@ import * as api from './api/apiService.js'
 import Spinner from './components/Spinner';
 
 
+const EARNING_COLOR = '#9AECDB';
+const EXPENSE_COLOR = '#FEA47F';
 
 export default function App() {
   const [periods, setperiods] = useState([]);
+
+  const [currentPeriod, setCurrentPeriod] = useState("2019-01");
+  const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
+
 
   useEffect(() => {
     const getAllPeriods = async () => {
       const allperiods = await api.getAllPeriods();
-      setperiods(allperiods);
+      const arrayPeriods = allperiods.map(({ id, description, index }) => {
+        return [id, description, index]
+      })
+
+      console.log(arrayPeriods)
+      setperiods(arrayPeriods);
+
     };
     getAllPeriods()
   }, [])
 
+
   useEffect(() => {
     const getTransactions = async () => {
-      const data = await api.getTransactionsFrom('2019-01')
+      console.log(`${currentPeriod}`)
+      const data = await api.getTransactionsFrom(`${currentPeriod}`)
       console.log(data)
       setTimeout(() => {
-        setFilteredTransactions(data)
+        setTransactions(data);
+        //começa sem filtro
+        setFilteredTransactions(data);
       }, 2000);
     };
     getTransactions();
-  }, []);
-
-
-  //   useEffect(() => {
-
-  //     const getResults =  () =>{
-  //       const despesas = [];
-  //       const receitas = [];
-  //       const saldo =[];
-
-  //       JSON.parse(filteredTransactions).forEach((transaction)=>{
-
-  //           if(transaction.type === '-'){
-  //               despesas.push(transaction.value)
-  //           }
-  //           if(transaction.type === '+'){
-  //               receitas.push(transaction.value)
-  //           }
-  //           saldo.push(transaction.value)
-  //       })
-
-  // };
-  //   getResults()
-
-  //   }, [])
-
-  //   useEffect(() => {
-  //     const getAllPeriods = async () =>{
-  //      const allperiods = await api.getAllPeriods();
-  //      setperiods(allperiods);
-  //     };
-  //     getAllPeriods()
-  //   }, [])
+  }, [currentPeriod]);
 
 
 
+  const handlePeriodChange = (event) => {
+    const newPeriod = event.target.value;
+    setCurrentPeriod(newPeriod);
+  }
+
+  const { transactionStyle, buttonStyle } = styles
+
+  return (
+    <div className="container">
+      <h1>Desafio Final do Bootcamp Full Stack</h1>
+
+      {filteredTransactions.length === 0 && < Spinner />}
+
+      <select className="browser-default" value={currentPeriod} onChange={handlePeriodChange}>
+
+        {periods.map((period) => {
+          return <option key={period}>{period[0]}</option>
+        })}
+      </select>
+      <h1>{transactions.length}</h1>
+
+      {transactions.map((transaction) => {
+        const currentColor = transaction.type === '+' ? EARNING_COLOR : EXPENSE_COLOR;
+
+        return <div
+          key={transaction.id}
+          style={{ ...transactionStyle, backgroundColor: currentColor }}>
+          <span style={{ buttonStyle }}>
+            <button className='waves-effect waves-ligth btn'>Editar</button>
+            <button className='waves-effect waves-ligth btn red darken-4'>X</button>
 
 
-  return (<div className="container">
-    <h1>Desafio Final do Bootcamp Full Stack</h1>
-    <h1>{filteredTransactions.length}</h1>
+            <span>
+              {transaction.yearMonthDay} - <strong>{transaction.category}</strong> - {transaction.description} - {transaction.value}
+            </span>
 
-    {filteredTransactions.length === 0 && < Spinner />}
 
-  </div>
+          </span>
+        </div>
+      })}
+
+
+    </div>
   );
 }
 
+
+const styles = {
+  transactionStyle: {
+    padding: '5px',
+    margin: '5px',
+    border: '1px solid #9AECDB',
+    borderRadius: '20px',
+    display: 'flex',
+    alignItems: 'space-around'
+  },
+  buttonStyle: {
+    margin: '20px',
+  }
+}
