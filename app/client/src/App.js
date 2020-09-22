@@ -12,6 +12,7 @@ export default function App() {
   const [currentPeriod, setCurrentPeriod] = useState("2019-01");
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [filteredText, setFilteredText] = useState('');
 
 
   useEffect(() => {
@@ -20,8 +21,6 @@ export default function App() {
       const arrayPeriods = allperiods.map(({ id, description, index }) => {
         return [id, description, index]
       })
-
-      console.log(arrayPeriods)
       setperiods(arrayPeriods);
 
     };
@@ -37,18 +36,48 @@ export default function App() {
       setTimeout(() => {
         setTransactions(data);
         //começa sem filtro
-        setFilteredTransactions(data);
+        //dois sets seguidos é bad smell, transformei em use Effect só de filtered
+        //        setFilteredTransactions(data);
       }, 2000);
     };
     getTransactions();
   }, [currentPeriod]);
 
+  useEffect(() => {
+    let newFilteredTransactions = [...transactions];
+    if (filteredText.trim() !== '') {
+      newFilteredTransactions = newFilteredTransactions.filter(transaction => {
+        return transaction.description.toLowerCase().includes(filteredText);
+      })
+     
+    }
+    console.log(newFilteredTransactions)
 
+    setFilteredTransactions(newFilteredTransactions);
+
+  }, [transactions, filteredText])
 
   const handlePeriodChange = (event) => {
     const newPeriod = event.target.value;
     setCurrentPeriod(newPeriod);
   }
+
+  const handleDeleteTransaction = (event) => {
+    const id = event.target.id
+    api.deleteTransaction(id);
+    //um tipo de render()
+    const newTransactions = transactions.filter((transaction) => {
+      return transaction.id !== id
+    })
+    setTransactions(newTransactions);
+  }
+
+  const handleFilterChange = (event) => {
+    console.log(event.target.value.trim())
+    const text = event.target.value.trim();
+    setFilteredText(text.toLowerCase());
+  }
+
 
   const { transactionStyle, buttonStyle } = styles
 
@@ -64,17 +93,19 @@ export default function App() {
           return <option key={period}>{period[0]}</option>
         })}
       </select>
-      <h1>{transactions.length}</h1>
 
-      {transactions.map((transaction) => {
+      <input type='text' placeholder='Filtro..' value={filteredText} onChange={handleFilterChange} />
+      <h4>Lançamentos: {filteredTransactions.length}</h4>
+
+      {filteredTransactions.map((transaction) => {
         const currentColor = transaction.type === '+' ? EARNING_COLOR : EXPENSE_COLOR;
 
         return <div
           key={transaction.id}
           style={{ ...transactionStyle, backgroundColor: currentColor }}>
           <span style={{ buttonStyle }}>
-            <button className='waves-effect waves-ligth btn'>Editar</button>
-            <button className='waves-effect waves-ligth btn red darken-4'>X</button>
+            <button className="waves-effect waves-light btn-small">Editar</button>
+            <button className="waves-effect waves-light btn-small" onClick={handleDeleteTransaction} id={transaction.id}>Deletar</button>
 
 
             <span>
@@ -94,14 +125,15 @@ export default function App() {
 
 const styles = {
   transactionStyle: {
-    padding: '5px',
+    padding: '10px',
     margin: '5px',
     border: '1px solid #9AECDB',
-    borderRadius: '20px',
+    borderRadius: '2px',
     display: 'flex',
     alignItems: 'space-around'
   },
   buttonStyle: {
     margin: '20px',
+    alignItems: 'center'
   }
 }
