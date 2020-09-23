@@ -62,6 +62,7 @@ transactionRouter.put('/:id', async (req, res) => {
 
     const { description, value, category, year, month, day, type } = body;
     const { id } = params;
+  
     const period = dateHelper.createPeriodFrom(year, month)
     const newTransaction = await service.updateTransaction(id, {
       description,

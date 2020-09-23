@@ -106,8 +106,10 @@ async function getCompleteTransaction(transaction) {
 }
 
 async function updateTransaction(transaction) {
+  console.log(transaction)
   const { id } = transaction;
-  const completeTransaction = getCompleteTransaction(transaction);
+  const completeTransaction = await getCompleteTransaction(transaction);
+  console.log(completeTransaction)
   await api.put(`${RESOURCE}/${id}`, completeTransaction);
 
   const updatedTransaction = _prepareTransactions(completeTransaction);

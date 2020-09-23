@@ -57,9 +57,9 @@ async function postTransaction(transaction) {
   return newTransaction;
 }
 
-async function updateTransaction(_id, transaction) {
-  await TransactionModel.updateOne({ _id: ObjectId(_id) }, transaction);
-  return { _id, ...transaction }
+async function updateTransaction(id, transaction) {
+  await TransactionModel.updateOne({ _id: ObjectId(id) }, transaction);
+  return {id, ...transaction }
 }
 
 async function deleteTransaction(_id) {
