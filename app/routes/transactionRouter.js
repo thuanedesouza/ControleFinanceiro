@@ -28,13 +28,16 @@ transactionRouter.get('/:period', async (req, res) => {
 
 
 transactionRouter.post('/', async (req, res) => {
+  console.log('cheguei')
   const { body } = req;
+  console.log(body);
 
   try {
     await validateTransactionData(body);
-    const { description, value, category, year, month, day, type } = body
+    const { description, value, category, year, month, day, type } = body;
+  
     const period = dateHelper.createPeriodFrom(year, month);
-
+    console.log(period)
     const newTransaction = await service.postTransaction({
       description,
       value,
@@ -129,11 +132,14 @@ async function validateTransactionData(body) {
     throw new Error('O mês é obrigatório');
   }
 
-  if (!type || type.toString() === '') {
+  if (!day || day.toString() === '') {
+    throw new Error('O dia é obrigatório');
+  }
+  if (!type || type.toString() === "") {
     throw new Error('O tipo de lançamento é obrigatório');
   }
 
-  if (type.trim() !== '+' && type.trim() !== '-') {
+  if (type.trim() !== "+" && type.trim() !== "-") {
     throw new Error(
       `Tipo de de lançamento (${type}) - A propriedade type, despesa ou receita, deve ter o valor '+' ou '-' `
     );

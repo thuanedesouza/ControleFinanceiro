@@ -16,6 +16,7 @@ export default function App() {
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [filteredText, setFilteredText] = useState('');
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [newTransaction, setNewTransaction] = useState(false);
 
 
   useEffect(() => {
@@ -63,10 +64,10 @@ export default function App() {
   }, [transactions, filteredText])
 
   useEffect(()=>{ 
-    selectedTransaction !== null ? 
+    selectedTransaction !== null || newTransaction? 
     setCurrentScreen(MAINTNANCE_SCREEN) : setCurrentScreen(LIST_SCREEN);
 
-  }, [selectedTransaction])
+  }, [selectedTransaction, newTransaction])
 
   const handlePeriodChange = (event) => {
     const newPeriod = event.target.value;
@@ -77,7 +78,7 @@ export default function App() {
     const id = event.target.id
     api.deleteTransaction(id);
     //um tipo de render()
-    const newTransactions = transactions.find((transaction) => {
+    const newTransactions = transactions.filter((transaction) => {
       return transaction.id !== id
     })
     setTransactions(newTransactions);
@@ -99,40 +100,73 @@ export default function App() {
   }
 
   const handlenCancelMaintenance = ()=>{
+    setNewTransaction(false);
     setSelectedTransaction(null);
   }
 
-  const handleSaveMaintenance = (newTransaction) =>{
-  console.log(newTransaction);
-    setSelectedTransaction(newTransaction);
-    api.updateTransaction(newTransaction);
+  const handleSaveMaintenance = async (editedTransaction) =>{
+    console.log(editedTransaction);
+    setSelectedTransaction(editedTransaction);
+
+    if (!editedTransaction.id){
+      const transactionToInsert = editedTransaction;
+      const data = await api.postTransaction(transactionToInsert);
+      console.log(data)
+      // console.log(data.transaction);
+      // const newTransactions = [...transactions, data.transaction];
+      // newTransactions.sort((a,b) =>{
+      //   return a.yearMonthDay.localeCompare(b.yearMonthDay);
+      // })
+      // setTransactions(newTransactions);
+      // //aqui ficou dificil de fugir
+      // setNewTransaction(null);
+    }
+    else{
+
+      await api.updateTransaction(editedTransaction);
+  
+      const newTransactions = [...transactions];
+      const index = newTransactions.findIndex((transaction)=>{
+        return editedTransaction.id === transaction.id
+      })
+  
+      newTransactions[index] = editedTransaction;
+      setTransactions(newTransactions);
+      //aqui ficou dificil de fugir
+      setNewTransaction(null);
+      setSelectedTransaction(null);
+    }
   }
-
-
-  return (
-    <div className="container">
-      <h1>Desafio Final do Bootcamp Full Stack</h1>
-
-      {filteredTransactions.length === 0 && < Spinner />}
-
-      {currentScreen ?  
-       <ListScreen 
-      periods = {periods}
-      currentPeriod = {currentPeriod}
-      transactions = {filteredTransactions}
-      filteredText = {filteredText}
-      onDelete ={handleDeleteTransaction}
-      onEdit = {handleEditTransaction}
-      onFilterChange = {handleFilterChange}
-      onPeriodChange = {handlePeriodChange}
-     /> : <MaintenanceScreen 
-     transaction ={selectedTransaction} 
-     onCancel = {handlenCancelMaintenance} 
-     onSave = {handleSaveMaintenance}/>}
-     
-
-    </div>
-  );
+    const handleNewTransaction = () => {
+      setNewTransaction(true);
+    }
+  
+  
+    return (
+      <div className="container">
+        <h3>Desafio Final do Bootcamp Full Stack</h3>
+  
+        {filteredTransactions.length === 0 && < Spinner />}
+  
+        {currentScreen ?  
+         <ListScreen 
+        periods = {periods}
+        currentPeriod = {currentPeriod}
+        transactions = {filteredTransactions}
+        filteredText = {filteredText}
+        onDelete ={handleDeleteTransaction}
+        onEdit = {handleEditTransaction}
+        onNewTransaction = {handleNewTransaction}
+        onFilterChange = {handleFilterChange}
+        onPeriodChange = {handlePeriodChange}
+       /> : <MaintenanceScreen 
+       transaction ={selectedTransaction} 
+       onCancel = {handlenCancelMaintenance} 
+       onSave = {handleSaveMaintenance}/>}
+       
+  
+      </div>
+    );
 }
 
 

@@ -1,6 +1,6 @@
 import React from 'react'
 const EARNING_COLOR = '#4cd137';
-const EXPENSE_COLOR = '#c23616';
+const EXPENSE_COLOR = '#c23640';
 
 export default function ListScreen({
     transactions,
@@ -10,6 +10,7 @@ export default function ListScreen({
     onPeriodChange,
     onDelete,
     onEdit,
+    onNewTransaction,
     onFilterChange }) {
 
     const { transactionStyle, buttonStyle } = styles
@@ -23,8 +24,18 @@ export default function ListScreen({
                 })}
             </select>
 
-            <input type='text' placeholder='Filtro..' value={filteredText} onChange={onFilterChange} />
-            <h4>Lançamentos: {transactions.length}</h4>
+            <input style={{marginTop: '20px', marginBottom: '20px'}} 
+                type='text' placeholder='Filtro..' 
+                value={filteredText} 
+                onChange={onFilterChange} />
+
+            <button style={{marginTop: '20px', marginBottom: '20px'}} 
+                className = "waves-effect waves-light btn" 
+                onClick = {onNewTransaction}> 
+                Novo Lançamento
+            </button>
+            
+            <h6 style={{marginBottom: '20px'}} >Lançamentos: {transactions.length}</h6>
 
             {transactions.map((transaction) => {
                 const currentColor = transaction.type === '+' ? EARNING_COLOR : EXPENSE_COLOR;

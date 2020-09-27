@@ -106,22 +106,31 @@ async function getCompleteTransaction(transaction) {
 }
 
 async function updateTransaction(transaction) {
-  console.log(transaction)
   const { id } = transaction;
+
   const completeTransaction = await getCompleteTransaction(transaction);
-  console.log(completeTransaction)
+
   await api.put(`${RESOURCE}/${id}`, completeTransaction);
 
-  const updatedTransaction = _prepareTransactions(completeTransaction);
+  const updatedTransaction = await _prepareTransactions(completeTransaction);
   return updatedTransaction;
 }
 
 
 async function postTransaction(transaction) {
-  const completeTransaction = getCompleteTransaction(transaction);
-  const { data } = await api.post(RESOURCE, completeTransaction);
-  const newTransaction = _prepareTransactions(data.transaction);
-  return newTransaction;
+  try{
+    const completeTransaction = await getCompleteTransaction(transaction);
+    
+  console.log(JSON.stringify(completeTransaction))
+    const data  = await api.post(RESOURCE, JSON.stringify(completeTransaction));
+    console.log(data)
+    const newTransaction = await _prepareTransactions(data.transaction);
+    console.log(newTransaction)
+    return newTransaction;}
+    catch(err){
+      console.log(err.message)
+    }
+  
 }
 
 export {

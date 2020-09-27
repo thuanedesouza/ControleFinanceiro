@@ -1,13 +1,28 @@
 import React, { useState, useEffect } from 'react'
 
+
+const INSERTING = 0;
+const EDITING = 1;
+
+function today(){
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = (date.getMonth()+ 1).toString().padStart(2,'0');
+    const day = date.getDate().toString().padStart(2,'0');
+
+    const today = `${year}-${month}-${day}`;
+    return today;
+}
+
 export default function MaintenanceScreen({ transaction, onCancel, onSave }) {
 
 
-    const [description, setDescription] = useState('');
+    const [description, setDescription] = useState('descrição');
     const [value, setValue] = useState(0);
-    const [category, setCategory] = useState('');
-    const [date, setDate] = useState('');
+    const [category, setCategory] = useState('nova categoria');
+    const [date, setDate] = useState(today());
     const [type, setType] = useState('-');
+    const [mode, setMode] = useState(INSERTING)
 
     useEffect(() => {
         if (!transaction) {
@@ -20,6 +35,7 @@ export default function MaintenanceScreen({ transaction, onCancel, onSave }) {
         setCategory(category);
         setDate(yearMonthDay);
         setType(type);
+        setMode(EDITING);
 
     }, [transaction])
 
@@ -63,14 +79,14 @@ export default function MaintenanceScreen({ transaction, onCancel, onSave }) {
 
     const handleSaveClick = () => {
         const newTransaction = {
-            id:  transaction.id,
+            id:  !!transaction ? transaction.id : null,
             description,
             value, 
             type,
             yearMonthDay:date, 
             category
         }
-        onSave(newTransaction)
+        onSave(newTransaction, mode)
     }
 
     return (
@@ -115,7 +131,7 @@ export default function MaintenanceScreen({ transaction, onCancel, onSave }) {
                     value={category}
                     onChange={handleCategoryChange}
                     id="inputCategory" />
-                <label htmlFor="inputCategory" className='active'>Valor:</label>
+                <label htmlFor="inputCategory" className='active'>Categoria:</label>
             </div>
 
             <div className='input-field'>

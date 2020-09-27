@@ -53,7 +53,9 @@ async function postTransaction(transaction) {
   //criando transaction
   const newTrasactionMongo = await TransactionModel.create(transaction);
   //deixando apenas os dados que me interessam
+
   const newTransaction = extractTransactionModelfrom(newTrasactionMongo);
+  console.log(newTransaction)
   return newTransaction;
 }
 
