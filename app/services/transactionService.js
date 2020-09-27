@@ -53,13 +53,15 @@ async function postTransaction(transaction) {
   //criando transaction
   const newTrasactionMongo = await TransactionModel.create(transaction);
   //deixando apenas os dados que me interessam
+
   const newTransaction = extractTransactionModelfrom(newTrasactionMongo);
+  console.log(newTransaction)
   return newTransaction;
 }
 
-async function updateTransaction(_id, transaction) {
-  await TransactionModel.updateOne({ _id: ObjectId(_id) }, transaction);
-  return { _id, ...transaction }
+async function updateTransaction(id, transaction) {
+  await TransactionModel.updateOne({ _id: ObjectId(id) }, transaction);
+  return {id, ...transaction }
 }
 
 async function deleteTransaction(_id) {
