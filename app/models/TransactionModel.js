@@ -34,8 +34,7 @@ let schema = mongoose.Schema({
     type: String,
     require: true
   },
-  type:
-  {
+  type:{
     type: String,
     require: true
   }

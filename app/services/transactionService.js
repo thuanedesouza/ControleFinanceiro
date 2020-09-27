@@ -59,6 +59,7 @@ async function postTransaction(transaction) {
   return newTransaction;
 }
 
+
 async function updateTransaction(id, transaction) {
   await TransactionModel.updateOne({ _id: ObjectId(id) }, transaction);
   return {id, ...transaction }

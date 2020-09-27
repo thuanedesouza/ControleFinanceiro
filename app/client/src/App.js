@@ -110,8 +110,8 @@ export default function App() {
 
     if (!editedTransaction.id){
       const transactionToInsert = editedTransaction;
-      const data = await api.postTransaction(transactionToInsert);
-      console.log(data)
+      const transactionFromAPI = await api.postTransaction(transactionToInsert);
+      console.log(transactionFromAPI)
       // console.log(data.transaction);
       // const newTransactions = [...transactions, data.transaction];
       // newTransactions.sort((a,b) =>{

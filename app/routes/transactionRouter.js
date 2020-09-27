@@ -26,7 +26,34 @@ transactionRouter.get('/:period', async (req, res) => {
   }
 });
 
+// transactionRouter.post('/', async (request, response) => {
+//   const { body } = request;
 
+//   try {
+//     await validateTransactionData(body);
+
+//     const { description, value, category, year, month, day, type } = body;
+
+//     const period = dateHelpers.createPeriodFrom(year, month);
+
+//     const newTransaction = await service.postTransaction({
+//       description,
+//       value,
+//       category,
+//       year,
+//       month,
+//       day,
+//       yearMonth: period,
+//       yearMonthDay: dateHelpers.createDateFrom(year, month, day),
+//       type,
+//     });
+
+//     response.send({ status: 'ok', transaction: newTransaction });
+//   } catch ({ message }) {
+//     console.log(message);
+//     response.status(400).send({ error: message });
+//   }
+// });
 transactionRouter.post('/', async (req, res) => {
   console.log('cheguei')
   const { body } = req;
@@ -53,6 +80,7 @@ transactionRouter.post('/', async (req, res) => {
     res.send({ status: 'ok', transaction: newTransaction, new: true });
   }
   catch (err) {
+    console.log(err.message)
     res.status(500).send(err.message);
   }
 })

@@ -3,7 +3,7 @@
 
 const axios = require('axios');
 //isso aqui da problema pra subir no heroku:
-const api = axios.create({ baseURL: 'http://localhost:3001/api' });
+const api = axios.create({ baseURL: 'api' });
 // lá nao tem localhost 
 //tentar:
 //const api = axios.create({ baseURL: 'api' });
@@ -116,21 +116,12 @@ async function updateTransaction(transaction) {
   return updatedTransaction;
 }
 
-
 async function postTransaction(transaction) {
-  try{
-    const completeTransaction = await getCompleteTransaction(transaction);
-    
-  console.log(JSON.stringify(completeTransaction))
-    const data  = await api.post(RESOURCE, JSON.stringify(completeTransaction));
-    console.log(data)
-    const newTransaction = await _prepareTransactions(data.transaction);
-    console.log(newTransaction)
-    return newTransaction;}
-    catch(err){
-      console.log(err.message)
-    }
-  
+  const completeTransaction = getCompleteTransaction(transaction);
+  const { data } = await api.post(RESOURCE, completeTransaction);
+
+  const newTransaction = _prepareTransactions(data.transaction);
+  return newTransaction;
 }
 
 export {
