@@ -49,7 +49,7 @@ function _processPeriods() {
 // O preenchimento é aplicado a partir do fim (direita) da string atual.
 
 function _prepareTransactions(transaction) {
-  const { description, category, _id: id, month, ...others } = transaction;
+  const { description, category,_id: id, month, ...others } = transaction;
   return {
     id,
     description,
@@ -90,24 +90,28 @@ async function deleteTransaction(id) {
 }
 
 async function getCompleteTransaction(transaction) {
-  const { yearMonthDay } = transaction;
-  // o + transforma a string em number
-  const year = +yearMonthDay.substring(0, 4);
-  const month = +yearMonthDay.substring(5, 7);
-  const day = +yearMonthDay.substring(8, 10);
+  try {
+    const { yearMonthDay } = await transaction;
+    // o + transforma a string em number
+    const year = +yearMonthDay.substring(0, 4);
+    const month = +yearMonthDay.substring(5, 7);
+    const day = +yearMonthDay.substring(8, 10);
 
-  const completeTransaction = {
-    ...transaction,
-    year,
-    month,
-    day
-  };
-  return completeTransaction;
-}
+    const completeTransaction = {
+      ...transaction,
+      year,
+      month,
+      day
+    };
+    return completeTransaction;
+  }
+  catch(err){
+    console.log(err);
+  }
+  }
 
 async function updateTransaction(transaction) {
   const { id } = transaction;
-
   const completeTransaction = await getCompleteTransaction(transaction);
 
   await api.put(`${RESOURCE}/${id}`, completeTransaction);
@@ -117,11 +121,27 @@ async function updateTransaction(transaction) {
 }
 
 async function postTransaction(transaction) {
-  const completeTransaction = getCompleteTransaction(transaction);
-  const { data } = await api.post(RESOURCE, completeTransaction);
+  const { description, value, category, yearMonthDay, type } = transaction;
+  let newTransaction = {
+    description,
+    value,
+    category,
+    yearMonthDay,
+    type
+  }
 
-  const newTransaction = _prepareTransactions(data.transaction);
-  return newTransaction;
+  const completeTransaction = await getCompleteTransaction(newTransaction);  
+  
+  try{
+    const databaseResponse = await api.post(RESOURCE, completeTransaction);
+    const newTransactionToReturn= _prepareTransactions(databaseResponse.data.transaction);
+    return newTransactionToReturn;
+  }
+  catch(err){
+    console.log(err.message)
+  }
+
+
 }
 
 export {

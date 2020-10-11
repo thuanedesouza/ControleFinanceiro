@@ -40,7 +40,7 @@ app.use('/api/transactions', transactionRouter);
  */
 const { DB_CONNECTION } = process.env;
 
-console.log('Iniciando conexão ao MongoDB...');
+  console.log('Iniciando conexão ao MongoDB...');
 mongoose.connect(
   DB_CONNECTION,
   {

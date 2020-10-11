@@ -7,7 +7,7 @@ const EDITING = 1;
 function today(){
     const date = new Date();
     const year = date.getFullYear();
-    const month = (date.getMonth()+ 1).toString().padStart(2,'0');
+    const month = (date.getMonth() + 1).toString().padStart(2,'0');
     const day = date.getDate().toString().padStart(2,'0');
 
     const today = `${year}-${month}-${day}`;
@@ -22,7 +22,7 @@ export default function MaintenanceScreen({ transaction, onCancel, onSave }) {
     const [category, setCategory] = useState('nova categoria');
     const [date, setDate] = useState(today());
     const [type, setType] = useState('-');
-    const [mode, setMode] = useState(INSERTING)
+    const [mode, setMode] = useState(INSERTING);
 
     useEffect(() => {
         if (!transaction) {
@@ -86,7 +86,9 @@ export default function MaintenanceScreen({ transaction, onCancel, onSave }) {
             yearMonthDay:date, 
             category
         }
-        onSave(newTransaction, mode)
+
+        console.log(newTransaction.id)
+        onSave(newTransaction)
     }
 
     return (

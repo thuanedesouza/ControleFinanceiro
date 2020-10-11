@@ -1,5 +1,10 @@
 const express = require('express');
+
+
+
 const transactionRouter = express.Router();
+
+transactionRouter.use(express.json());
 // dessa forma não importa o que transactionService usa no db,
 //aqui estão só as rotas
 const service = require('../services/transactionService')
@@ -26,45 +31,16 @@ transactionRouter.get('/:period', async (req, res) => {
   }
 });
 
-// transactionRouter.post('/', async (request, response) => {
-//   const { body } = request;
-
-//   try {
-//     await validateTransactionData(body);
-
-//     const { description, value, category, year, month, day, type } = body;
-
-//     const period = dateHelpers.createPeriodFrom(year, month);
-
-//     const newTransaction = await service.postTransaction({
-//       description,
-//       value,
-//       category,
-//       year,
-//       month,
-//       day,
-//       yearMonth: period,
-//       yearMonthDay: dateHelpers.createDateFrom(year, month, day),
-//       type,
-//     });
-
-//     response.send({ status: 'ok', transaction: newTransaction });
-//   } catch ({ message }) {
-//     console.log(message);
-//     response.status(400).send({ error: message });
-//   }
-// });
-transactionRouter.post('/', async (req, res) => {
-  console.log('cheguei')
-  const { body } = req;
-  console.log(body);
+transactionRouter.post('/', async (request, response) => {
+  const { body } = request;
 
   try {
     await validateTransactionData(body);
+
     const { description, value, category, year, month, day, type } = body;
-  
+
     const period = dateHelper.createPeriodFrom(year, month);
-    console.log(period)
+
     const newTransaction = await service.postTransaction({
       description,
       value,
@@ -74,16 +50,47 @@ transactionRouter.post('/', async (req, res) => {
       day,
       yearMonth: period,
       yearMonthDay: dateHelper.createDateFrom(year, month, day),
-      type
-    })
+      type,
+    });
+  
+    response.send({ status: 'ok', transaction: newTransaction });
+  } catch ({ message }) {
+    console.log(message);
+    response.status(400).send({ error: message });
+  }
 
-    res.send({ status: 'ok', transaction: newTransaction, new: true });
-  }
-  catch (err) {
-    console.log(err.message)
-    res.status(500).send(err.message);
-  }
-})
+});
+// transactionRouter.post('/', async (req, res) => {
+//   console.log('cheguei')
+//   const { body } = req;
+
+
+//   try {
+//     await validateTransactionData(body);
+//     const { description, value, category, year, month, day, type } = body;
+  
+//     const period = dateHelper.createPeriodFrom(year, month);
+//     console.log(period)
+//     const newTransaction = await service.postTransaction({
+//       description,
+//       value,
+//       category,
+//       year,
+//       month,
+//       day,
+//       yearMonth: period,
+//       yearMonthDay: dateHelper.createDateFrom(year, month, day),
+//       type
+//     })
+
+//     res.send({ status: 'ok', transaction: newTransaction, new: true });
+//   }
+//   catch (err) {
+//     console.log(err.message)
+//     console.log(err);
+//     res.status(500).send(err.message);
+//   }
+// })
 
 transactionRouter.put('/:id', async (req, res) => {
   const { body, params } = req;
@@ -138,7 +145,8 @@ async function validateTransactionId(params) {
 }
 
 async function validateTransactionData(body) {
-  const { description, value, category, year, month, day } = body;
+  console.log(body);
+  const { description, value, category, year, month, day, type } = body;
 
   if (!description || description.trim() === '') {
     throw new Error('A descrição é obrigatória');
@@ -163,6 +171,7 @@ async function validateTransactionData(body) {
   if (!day || day.toString() === '') {
     throw new Error('O dia é obrigatório');
   }
+  console.log(type);
   if (!type || type.toString() === "") {
     throw new Error('O tipo de lançamento é obrigatório');
   }

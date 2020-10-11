@@ -105,36 +105,45 @@ export default function App() {
   }
 
   const handleSaveMaintenance = async (editedTransaction) =>{
-    console.log(editedTransaction);
-    setSelectedTransaction(editedTransaction);
+   
 
     if (!editedTransaction.id){
-      const transactionToInsert = editedTransaction;
-      const transactionFromAPI = await api.postTransaction(transactionToInsert);
-      console.log(transactionFromAPI)
-      // console.log(data.transaction);
-      // const newTransactions = [...transactions, data.transaction];
-      // newTransactions.sort((a,b) =>{
-      //   return a.yearMonthDay.localeCompare(b.yearMonthDay);
-      // })
-      // setTransactions(newTransactions);
-      // //aqui ficou dificil de fugir
-      // setNewTransaction(null);
+      try{
+        setNewTransaction(editedTransaction);
+        const transactionToInsert = editedTransaction;
+        const transactionFromAPI = await api.postTransaction(transactionToInsert);
+         const newTransactions = [...transactions, transactionFromAPI];
+         newTransactions.sort((a,b) =>{
+           return a.yearMonthDay.localeCompare(b.yearMonthDay);
+         })
+        setTransactions(newTransactions);
+        //aqui ficou dificil de fugir
+        setNewTransaction(null);
+      }
+      catch(err){
+        console.log(err.message)
+      
+      }
     }
     else{
-
-      await api.updateTransaction(editedTransaction);
-  
-      const newTransactions = [...transactions];
-      const index = newTransactions.findIndex((transaction)=>{
-        return editedTransaction.id === transaction.id
-      })
-  
-      newTransactions[index] = editedTransaction;
-      setTransactions(newTransactions);
-      //aqui ficou dificil de fugir
-      setNewTransaction(null);
-      setSelectedTransaction(null);
+      try{
+        setSelectedTransaction(editedTransaction);
+        await api.updateTransaction(editedTransaction);
+    
+        const newTransactions = [...transactions];
+        const index = newTransactions.findIndex((transaction)=>{
+          return editedTransaction.id === transaction.id
+        })
+    
+        newTransactions[index] = editedTransaction;
+        setTransactions(newTransactions);
+        //aqui ficou dificil de fugir
+        setSelectedTransaction(null);
+      }
+      catch(err){
+        console.log(err.message)
+       
+      }
     }
   }
     const handleNewTransaction = () => {
