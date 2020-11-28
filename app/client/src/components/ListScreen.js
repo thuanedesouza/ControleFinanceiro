@@ -43,13 +43,11 @@ export default function ListScreen({
                 return <div
                     key={transaction.id}
                     style={{ ...transactionStyle, backgroundColor: currentColor, display: 'block' }}>
-                    <span style={{ buttonStyle }}>
-
+                    <span style={{ buttonStyle}}>
                         <span>
                             {transaction.yearMonthDay} - <strong>{transaction.category}</strong> - {transaction.description} - {transaction.value}
                         </span>
                         <span className="right" style = {{alignItems: 'center'}}>
-
                             <button className="waves-effect waves-light btn-small" onClick={onEdit} id={transaction.id}>Editar</button>
                             <button style = {{ marginLeft:'5px', color:'#1e272e'}} className="waves-effect waves-light btn-small grey lighten-1" onClick={onDelete} id={transaction.id}>Deletar</button>
                         </span>
